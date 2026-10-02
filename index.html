@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which node am I on?</title>
+<script src="env.js"></script>
+<style>
+  :root { --hue: 215; --ink: #1b2433; --paper: #eef1f5; --muted: #56627a;
+          --accent: hsl(var(--hue) 62% 36%); }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--paper); color: var(--ink);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .hero { background: var(--accent); color: #fff; padding: 56px 24px 64px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .hero p { margin: 0 0 8px; font-size: 18px; opacity: .85; }
+  .hero h1 { margin: 0; font-size: clamp(32px, 8vw, 68px); line-height: 1.05;
+             font-weight: 700; letter-spacing: -.02em; word-break: break-word; }
+  main { padding: 32px 24px 56px; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 14px 28px; margin: 0 0 32px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+       word-break: break-all; }
+  button { font: inherit; font-weight: 600; padding: 12px 20px; border: 0; border-radius: 6px;
+           background: var(--ink); color: #fff; cursor: pointer; }
+  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  small { display: block; margin-top: 14px; color: var(--muted); max-width: 60ch; }
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <p>This page was served by node</p>
+  <h1 id="node">…</h1>
+</div></header>
+<main><div class="wrap">
+  <dl>
+    <dt>Pod</dt><dd id="pod"></dd>
+    <dt>Pod IP</dt><dd id="ip"></dd>
+    <dt>Namespace</dt><dd id="ns"></dd>
+    <dt>Environment</dt><dd id="envname"></dd>
+    <dt>Loaded at</dt><dd id="time"></dd>
+  </dl>
+  <button type="button" onclick="location.reload()">Reload and check again</button>
+  <small>Each node gets its own colour. If the colour changes after a reload, a different worker node answered.</small>
+</div></main>
+<script>
+  const env = window.__ENV__ || {};
+  const get = (k) => (env[k] && env[k].trim()) || "not set";
+  const node = get("NODE_NAME");
+  let hue = 0;
+  for (const c of node) hue = (hue * 31 + c.charCodeAt(0)) % 360;
+  document.documentElement.style.setProperty("--hue", hue);
+  document.title = get("APP_TITLE") === "not set" ? "Which node am I on?" : get("APP_TITLE");
+  document.getElementById("node").textContent = node;
+  document.getElementById("pod").textContent = get("POD_NAME");
+  document.getElementById("ip").textContent = get("POD_IP");
+  document.getElementById("ns").textContent = get("POD_NAMESPACE");
+  document.getElementById("envname").textContent = get("APP_ENV");
+  document.getElementById("time").textContent = new Date().toLocaleTimeString();
+</script>
+</body>
+</html>
